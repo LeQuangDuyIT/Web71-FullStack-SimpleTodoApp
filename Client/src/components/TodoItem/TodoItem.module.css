@@ -1,0 +1,28 @@
+.ct-todo-title {
+  position: relative;
+
+  width: fit-content;
+}
+
+.ct-todo-title::before {
+  content: '';
+
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 0;
+  height: 1px;
+  background-color: white;
+}
+
+.ct-todo-title--completed {
+  font-style: italic;
+}
+
+.ct-todo-title--completed::before {
+  width: calc(100% + 12px);
+
+  transition: width 0.5s ease-in;
+}

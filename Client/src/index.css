@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Quicksand', sans-serif;
+    color: white;
+  }
+}
+
+.ct-app-wrapper {
+  box-shadow: -40px -40px 0px 0px rgba(100, 100, 100, 0.1);
+}
