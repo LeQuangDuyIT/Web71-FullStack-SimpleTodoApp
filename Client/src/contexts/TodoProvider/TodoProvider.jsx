@@ -65,15 +65,40 @@ const TodoProvider = ({ children }) => {
     });
   };
 
-  const handleUpdateTodo = (id, updatedTodo) => {
+  const handleUpdateTodo = async (id, updatedTodo) => {
     let newTodoList = todoList.map(todo => (todo._id === id ? updatedTodo : todo));
     newTodoList = todoListSorter(newTodoList);
     setTodoList(newTodoList);
+
+    const requestOptions = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updatedTodo)
+    };
+    try {
+      const response = await fetch(`http://localhost:3001/api/v1/todos/${id}`, requestOptions);
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const handleRemoveTodo = id => {
+  const handleRemoveTodo = async id => {
     const newTodoList = todoList.filter(todo => todo._id !== id);
     setTodoList(newTodoList);
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/v1/todos/${id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const todoListSorter = sorterList => {

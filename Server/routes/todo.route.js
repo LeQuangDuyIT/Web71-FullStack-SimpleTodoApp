@@ -44,7 +44,7 @@ router.post('/', async (req, res) => {
 
 // Update
 router.put('/:id', async (req, res) => {
-  const { title } = req.body;
+  const { title, isCompleted } = req.body;
   const { id } = req.params;
 
   const existingTodo = await db.todos.findOne({ _id: new ObjectId(id) });
@@ -53,13 +53,14 @@ router.put('/:id', async (req, res) => {
   }
 
   if (!title || title === '') {
-    return res.status(401).json({ message: 'Dữ liệu không hợp lệ' });
+    return res.status(400).json({ message: 'Dữ liệu không hợp lệ' });
   }
 
   const updatedTodo = {
     ...existingTodo,
     title,
-    updateAt: new Date()
+    isCompleted,
+    updateAt: new Date().getTime()
   };
 
   await db.todos.updateOne({ _id: new ObjectId(id) }, { $set: updatedTodo });

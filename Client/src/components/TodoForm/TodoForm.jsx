@@ -15,6 +15,7 @@ const TodoForm = () => {
         title: inputValue,
         isCompleted: false,
         createAt: new Date().getTime(),
+        updateAt: new Date().getTime(),
         isNewest: true
       };
       await handleAddTodo(newTodo);
