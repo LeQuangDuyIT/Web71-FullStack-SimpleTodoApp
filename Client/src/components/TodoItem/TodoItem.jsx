@@ -29,7 +29,7 @@ const TodoItem = ({ data }) => {
         'flex justify-between items-center gap-4 min-h-[calc(20%-4px*4/5)] px-16 bg-white/10',
         { 'animate-slide-down': isNewest }
       )}
-      onAnimationEnd={handleDisableAnimation}
+      // onAnimationEnd={handleDisableAnimation}
     >
       <div
         className={clsx(styles['ct-todo-title'], {

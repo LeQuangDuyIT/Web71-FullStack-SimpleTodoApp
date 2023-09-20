@@ -14,7 +14,7 @@ const TodoForm = () => {
         _id: uuidv4(),
         title: inputValue,
         isCompleted: false,
-        createAt: new Date(),
+        createAt: new Date().getTime(),
         isNewest: true
       };
       await handleAddTodo(newTodo);

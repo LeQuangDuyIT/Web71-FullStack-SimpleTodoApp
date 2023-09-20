@@ -8,6 +8,21 @@ const TodoProvider = ({ children }) => {
   const [isDoneAtEnd, setIsDoneAtEnd] = useState(false);
   const wrapperRef = useRef(null);
 
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/v1/todos');
+      const data = await response.json();
+      console.log(data);
+      setTodoList(data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   useEffect(() => {
     const handleSort = () => {
       const newTodoList = todoListSorter(todoList);
@@ -20,10 +35,25 @@ const TodoProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDoneAtEnd]);
 
-  const handleAddTodo = newTodo => {
+  const handleAddTodo = async newTodo => {
     let newTodoList = [...todoList, newTodo];
     newTodoList = todoListSorter(newTodoList);
     setTodoList(newTodoList);
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newTodo)
+    };
+    try {
+      const response = await fetch('http://localhost:3001/api/v1/todos', requestOptions);
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // Xử lý sau khi thêm todo thì cuộn xuống todo cuối cùng (vừa thêm)
@@ -47,19 +77,20 @@ const TodoProvider = ({ children }) => {
   };
 
   const todoListSorter = sorterList => {
-    const newTodoList = [...sorterList];
+    let newTodoList = [...sorterList];
     if (isDoneAtEnd) {
       newTodoList.sort((a, b) =>
         a.isCompleted && !b.isCompleted ? 1 : !a.isCompleted && b.isCompleted ? -1 : 0
       );
     } else {
-      newTodoList.sort((a, b) => (new Date(a.createAt) > new Date(b.createAt) ? 1 : -1));
+      newTodoList.sort((a, b) => (a.createAt > b.createAt ? 1 : -1));
+      console.log('sắp xếp bình thường');
     }
     return newTodoList;
   };
 
   const handleChangeSortMode = () => {
-    setIsDoneAtEnd(!isDoneAtEnd);
+    setIsDoneAtEnd(pre => !pre);
   };
 
   return (
