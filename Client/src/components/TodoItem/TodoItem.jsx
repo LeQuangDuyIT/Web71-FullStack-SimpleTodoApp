@@ -21,7 +21,7 @@ const TodoItem = ({ data }) => {
     <div
       className={clsx(
         'flex justify-between items-center gap-4 min-h-[calc(20%-4px*4/5)] px-16 bg-white/10',
-        { 'animate-slide-down': isNewest, 'bg-black/5': editingTodo?._id === _id }
+        { 'animate-slide-down': isNewest, 'bg-gray-700/10': editingTodo?._id === _id }
       )}
     >
       <div

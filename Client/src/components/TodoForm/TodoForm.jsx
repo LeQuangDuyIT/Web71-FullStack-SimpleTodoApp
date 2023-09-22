@@ -12,9 +12,12 @@ const TodoForm = () => {
       return;
     }
     setInputValue(editingTodo.title);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    const timer = setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.select();
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [editingTodo]);
 
   const onSubmitForm = e => {
