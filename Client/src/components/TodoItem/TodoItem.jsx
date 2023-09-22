@@ -9,17 +9,11 @@ import styles from './TodoItem.module.css';
 
 const TodoItem = ({ data }) => {
   const { _id, title, isCompleted, isNewest } = data;
-  const { handleUpdateTodo, handleRemoveTodo } = useContext(TodoContext);
+  const { handleUpdateTodo, handleRemoveTodo, editingTodo, handleClickEdit } =
+    useContext(TodoContext);
 
   const onToggleCompleted = () => {
     const updatedTodo = { ...data, isCompleted: !isCompleted };
-    handleUpdateTodo(_id, updatedTodo);
-  };
-
-  const handleDisableAnimation = () => {
-    if (!isNewest) return;
-    const updatedTodo = { ...data };
-    delete updatedTodo.isNewest;
     handleUpdateTodo(_id, updatedTodo);
   };
 
@@ -27,9 +21,8 @@ const TodoItem = ({ data }) => {
     <div
       className={clsx(
         'flex justify-between items-center gap-4 min-h-[calc(20%-4px*4/5)] px-16 bg-white/10',
-        { 'animate-slide-down': isNewest }
+        { 'animate-slide-down': isNewest, 'bg-black/5': editingTodo?._id === _id }
       )}
-      // onAnimationEnd={handleDisableAnimation}
     >
       <div
         className={clsx(styles['ct-todo-title'], {
@@ -42,7 +35,7 @@ const TodoItem = ({ data }) => {
         <button onClick={onToggleCompleted}>
           <FontAwesomeIcon icon={isCompleted ? faSquareCheck : faSquare} size="lg" />
         </button>
-        <button>
+        <button onClick={() => handleClickEdit(data)}>
           <FontAwesomeIcon icon={faPencil} />
         </button>
         <button onClick={() => handleRemoveTodo(_id)}>

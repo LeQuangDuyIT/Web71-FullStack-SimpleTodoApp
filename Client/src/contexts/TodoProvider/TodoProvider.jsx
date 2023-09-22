@@ -1,58 +1,63 @@
 import { createContext, useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import TodoAPI from '~/services/TodoAPI';
 
 export const TodoContext = createContext();
 
 const TodoProvider = ({ children }) => {
   const [todoList, setTodoList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [reload, setReload] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
   const [isDoneAtEnd, setIsDoneAtEnd] = useState(false);
+  const [editingTodo, setEditingTodo] = useState(null);
   const wrapperRef = useRef(null);
 
-  const fetchData = async () => {
+  useEffect(() => {
+    fetchAllTodos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reload]);
+
+  useEffect(() => {
+    if (isCreating) {
+      scrollToWrapperEnd();
+      setIsCreating(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todoList]);
+
+  const fetchAllTodos = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/v1/todos');
-      const data = await response.json();
-      console.log(data);
-      setTodoList(data.data);
+      setLoading(true);
+      const todos = await TodoAPI.getAll();
+      const todoData = [...todos.data.data];
+
+      if (isCreating && todoData.length > 0) {
+        const newestIndex = todoData.length - 1;
+        todoData[newestIndex] = { ...todoData[newestIndex], isNewest: true };
+      }
+
+      const sortedList = todoListSorter(todoData);
+      setTodoList(sortedList);
     } catch (error) {
-      console.error(error);
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const handleSort = () => {
-      const newTodoList = todoListSorter(todoList);
-      setTodoList(newTodoList);
-      if (isDoneAtEnd) {
-        scrollToWrapperEnd();
-      }
-    };
-    handleSort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDoneAtEnd]);
-
   const handleAddTodo = async newTodo => {
-    let newTodoList = [...todoList, newTodo];
-    newTodoList = todoListSorter(newTodoList);
-    setTodoList(newTodoList);
-
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newTodo)
-    };
     try {
-      const response = await fetch('http://localhost:3001/api/v1/todos', requestOptions);
-      const data = await response.json();
-      console.log(data);
+      setLoading(true);
+      await TodoAPI.create(newTodo);
+      setReload(Math.random());
+      if (!isDoneAtEnd) {
+        setIsCreating(true);
+      }
     } catch (error) {
-      console.error(error);
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,38 +71,26 @@ const TodoProvider = ({ children }) => {
   };
 
   const handleUpdateTodo = async (id, updatedTodo) => {
-    let newTodoList = todoList.map(todo => (todo._id === id ? updatedTodo : todo));
-    newTodoList = todoListSorter(newTodoList);
-    setTodoList(newTodoList);
-
-    const requestOptions = {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(updatedTodo)
-    };
     try {
-      const response = await fetch(`http://localhost:3001/api/v1/todos/${id}`, requestOptions);
-      const data = await response.json();
-      console.log(data);
+      setLoading(true);
+      await TodoAPI.update(id, updatedTodo);
+      setReload(Math.random());
     } catch (error) {
-      console.error(error);
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRemoveTodo = async id => {
-    const newTodoList = todoList.filter(todo => todo._id !== id);
-    setTodoList(newTodoList);
-
     try {
-      const response = await fetch(`http://localhost:3001/api/v1/todos/${id}`, {
-        method: 'DELETE'
-      });
-      const data = await response.json();
-      console.log(data);
+      setLoading(true);
+      await TodoAPI.deleteById(id);
+      setReload(Math.random());
     } catch (error) {
-      console.error(error);
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,13 +102,17 @@ const TodoProvider = ({ children }) => {
       );
     } else {
       newTodoList.sort((a, b) => (a.createAt > b.createAt ? 1 : -1));
-      console.log('sắp xếp bình thường');
     }
     return newTodoList;
   };
 
   const handleChangeSortMode = () => {
     setIsDoneAtEnd(pre => !pre);
+    setReload(Math.random());
+  };
+
+  const handleClickEdit = data => {
+    setEditingTodo(data);
   };
 
   return (
@@ -125,10 +122,12 @@ const TodoProvider = ({ children }) => {
         handleAddTodo,
         handleUpdateTodo,
         wrapperRef,
-        scrollToWrapperEnd,
         handleRemoveTodo,
         isDoneAtEnd,
-        handleChangeSortMode
+        handleChangeSortMode,
+        loading,
+        editingTodo,
+        handleClickEdit
       }}
     >
       {children}

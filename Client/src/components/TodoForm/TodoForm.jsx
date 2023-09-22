@@ -1,46 +1,72 @@
-import { useContext, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { TodoContext } from '~/contexts/TodoProvider';
 
 const TodoForm = () => {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef(null);
-  const { handleAddTodo, scrollToWrapperEnd } = useContext(TodoContext);
+  const { handleAddTodo, handleUpdateTodo, editingTodo, handleClickEdit } = useContext(TodoContext);
 
-  const onSubmitForm = async e => {
-    e.preventDefault();
-    if (inputValue !== '') {
-      const newTodo = {
-        _id: uuidv4(),
-        title: inputValue,
-        isCompleted: false,
-        createAt: new Date().getTime(),
-        updateAt: new Date().getTime(),
-        isNewest: true
-      };
-      await handleAddTodo(newTodo);
+  useEffect(() => {
+    if (!editingTodo) {
       setInputValue('');
-      scrollToWrapperEnd(); // Cuộn xuống cuối wrapper để thấy todo vừa thêm
+      return;
     }
+    setInputValue(editingTodo.title);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editingTodo]);
+
+  const onSubmitForm = e => {
+    e.preventDefault();
+    if (inputValue === '') return;
+
+    if (!editingTodo) {
+      handleSubmitAdd();
+    } else {
+      handleSubmitEdit();
+    }
+    setInputValue('');
+
     if (inputRef.current) {
       inputRef.current.focus();
     }
   };
 
+  const handleSubmitAdd = async () => {
+    const newTodo = {
+      title: inputValue,
+      isCompleted: false,
+      createAt: new Date().getTime(),
+      updateAt: new Date().getTime()
+    };
+    await handleAddTodo(newTodo);
+  };
+
+  const handleSubmitEdit = async () => {
+    const id = editingTodo._id;
+    const updatedTodo = { ...editingTodo, title: inputValue };
+    await handleUpdateTodo(id, updatedTodo);
+    handleClickEdit(null);
+  };
+
   return (
     <div className="px-16">
-      <h2 className="text-2xl mb-1">Add to the todo list</h2>
+      <h2 className="text-2xl mb-1">
+        {editingTodo ? 'Edit todo in todo list' : 'Add to the todo list'}
+      </h2>
       <form className="flex gap-1" onSubmit={onSubmitForm}>
         <input
           ref={inputRef}
           placeholder="Enter new todo"
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
+          onBlur={() => handleClickEdit(null)}
           className="basis-3/4 py-4 px-4 text-black outline-none"
           autoFocus
         />
         <button type="submit" className="basis-1/4 bg-[#ff6666]">
-          ADD ITEM
+          {editingTodo ? 'EDIT' : 'ADD ITEM'}
         </button>
       </form>
     </div>
