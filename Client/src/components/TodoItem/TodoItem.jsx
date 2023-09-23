@@ -19,10 +19,11 @@ const TodoItem = ({ data }) => {
 
   return (
     <div
-      className={clsx(
-        'flex justify-between items-center gap-4 min-h-[calc(20%-4px*4/5)] px-16 bg-white/10',
-        { 'animate-slide-down': isNewest, 'bg-gray-700/10': editingTodo?._id === _id }
-      )}
+      className={clsx('flex justify-between items-center gap-4 min-h-[calc(20%-4px*4/5)] px-16', {
+        'animate-slide-down': isNewest,
+        'bg-gray-700/10': editingTodo?._id === _id,
+        'bg-white/10': editingTodo?._id !== _id
+      })}
     >
       <div
         className={clsx(styles['ct-todo-title'], {
