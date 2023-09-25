@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import appRouter from './routes/index.js';
 import { connectToDatabase } from './config/database.js';
+import 'dotenv/config.js';
 
 const whitelist = ['http://localhost:5173'];
 const corsOptions = {
