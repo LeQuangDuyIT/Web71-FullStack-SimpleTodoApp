@@ -1,6 +1,5 @@
 import { MongoClient } from 'mongodb';
 
-// const MONGO_URI = process.env.MONGO_URI;
 const DATABASE = 'web71-simple-todo-app';
 
 const db = {};

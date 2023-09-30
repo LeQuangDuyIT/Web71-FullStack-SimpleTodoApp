@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_API_URL = 'http://localhost:3001/api/v1';
+const BASE_API_URL = 'https://web71-simple-todo-app-server.onrender.com/api/v1';
 
 const api = axios.create({
   baseURL: BASE_API_URL,
