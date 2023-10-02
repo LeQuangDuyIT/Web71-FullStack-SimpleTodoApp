@@ -22,6 +22,7 @@ const TodoForm = () => {
 
   const onSubmitForm = e => {
     e.preventDefault();
+    console.log(editingTodo);
     if (inputValue === '') return;
 
     if (!editingTodo) {
@@ -49,6 +50,7 @@ const TodoForm = () => {
   const handleSubmitEdit = async () => {
     const id = editingTodo._id;
     const updatedTodo = { ...editingTodo, title: inputValue };
+    console.log(id, updatedTodo);
     await handleUpdateTodo(id, updatedTodo);
     handleClickEdit(null);
   };
@@ -68,7 +70,11 @@ const TodoForm = () => {
           className="basis-3/4 py-4 px-4 text-black outline-none"
           autoFocus
         />
-        <button type="submit" className="basis-1/4 bg-[#ff6666]">
+        <button
+          type="submit"
+          className="basis-1/4 bg-[#ff6666]"
+          onMouseDown={e => e.preventDefault()}
+        >
           {editingTodo ? 'EDIT' : 'ADD ITEM'}
         </button>
       </form>
